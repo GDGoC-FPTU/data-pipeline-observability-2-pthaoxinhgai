@@ -1,35 +1,30 @@
-# Experiment Report: Data Quality Impact on AI Agent
+# Báo Cáo Thí Nghiệm: Ảnh Hưởng Của Chất Lượng Dữ Liệu Đến AI Agent
 
-**Student ID:** AI20K-XXXX
-**Name:** (Dien ten cua ban)
-**Date:** (Dien ngay thuc hien)
-
----
-
-## 1. Ket qua thi nghiem
-
-Chay `agent_simulation.py` voi 2 bo du lieu va ghi lai ket qua:
-
-| Scenario | Agent Response | Accuracy (1-10) | Notes |
-|----------|----------------|-----------------|-------|
-| Clean Data (`processed_data.csv`) | (Ghi cau tra loi cua Agent) | | |
-| Garbage Data (`garbage_data.csv`) | (Ghi cau tra loi cua Agent) | | |
+**Mã số sinh viên:** AI20K-XXXX
+**Tên:** pthaoxinhgai
+**Ngày thực hiện:** 2026-06-10
 
 ---
 
-## 2. Phan tich & nhan xet
+## 1. Kết Quả Thí Nghiệm
 
-### Tai sao Agent tra loi sai khi dung Garbage Data?
+Mình chạy `agent_simulation.py` với 2 bộ dữ liệu: clean data được tạo từ ETL pipeline (`processed_data.csv`) và garbage data được tạo bằng `generate_garbage.py`.
 
-(Viet nhan xet cua ban o day — it nhat 50 tu)
-
-(Hay phan tich cac van de nhu Duplicate IDs, wrong data types, outliers, null values
-va giai thich tai sao chung anh huong den ket qua cua Agent.)
+| Kịch bản | Phản hồi của Agent | Độ chính xác (1-10) | Ghi chú |
+|----------|--------------------|---------------------|---------|
+| Clean Data (`processed_data.csv`) | Agent: Based on my data, the best choice is Laptop at $1200. | 9 | Dữ liệu đã được validate, category được chuẩn hóa đúng định dạng Title Case nên agent lọc được electronics và chọn sản phẩm có giá cao nhất một cách hợp lý. |
+| Garbage Data (`garbage_data.csv`) | Agent: Based on my data, the best choice is Nuclear Reactor at $999999. | 2 | Dữ liệu bị nhiễu bởi outlier rất lớn, trùng ID, giá trị thiếu và sai kiểu dữ liệu, khiến kết quả khuyến nghị bị lệch khỏi ngữ cảnh thực tế. |
 
 ---
 
-## 3. Ket luan
+## 2. Phân Tích Và Nhận Xét (Phan tich va nhan xet)
 
-**Quality Data > Quality Prompt?** (Dong y hay khong? Giai thich ngan gon.)
+### Tại sao Agent trả lời sai khi dùng Garbage Data?
 
-(Viet ket luan cua ban o day)
+Agent trả lời sai khi dùng garbage data vì nó phụ thuộc trực tiếp vào dữ liệu đầu vào. Trong mô phỏng này, agent chỉ lọc các sản phẩm thuộc category electronics, sau đó chọn record có `price` cao nhất. Khi bộ dữ liệu có outlier như Nuclear Reactor với giá `999999`, giá trị này lớn hơn rất nhiều so với Laptop nên agent xem đó là lựa chọn tốt nhất, dù kết quả này không hợp lý trong ngữ cảnh mua sản phẩm điện tử thông thường. Ngoài ra, duplicate ID làm mất tính duy nhất của record, wrong data type như `"ten dollars"` có thể làm lỗi hoặc làm sai schema, còn null values khiến quá trình lọc category và xử lý price thiếu ổn định. Vì vậy, nếu pipeline không validate và transform dữ liệu trước, prompt tốt vẫn không đủ để đảm bảo agent trả lời đúng.
+
+---
+
+## 3. Kết Luận
+
+**Quality Data > Quality Prompt?** Mình đồng ý. Prompt rõ ràng rất quan trọng, nhưng chất lượng dữ liệu vẫn là nền tảng. Nếu dữ liệu đầu vào bị lỗi, thiếu, sai kiểu hoặc có outlier bất thường, agent có thể suy luận dựa trên thông tin sai và đưa ra câu trả lời không đáng tin cậy. Một pipeline tốt cần kiểm tra, chuẩn hóa và ghi nhận trạng thái xử lý dữ liệu trước khi đưa dữ liệu đó cho agent sử dụng.
